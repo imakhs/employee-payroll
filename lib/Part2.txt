@@ -1,0 +1,87 @@
+            String value = txt_firstname.getText();
+            String value0 = txt_surname.getText();
+            String value1 = txt_id.getText();
+            String value2 = txt_desig.getText();
+            String value3 = txt_desig.getText();
+                                                      
+            
+            JFileChooser dialog = new JFileChooser();
+            dialog.setSelectedFile(new File(value +" "+ value0+"-Salary Slip"+".pdf"));
+            int dialogResult = dialog.showSaveDialog(null);
+            if (dialogResult==JFileChooser.APPROVE_OPTION){
+            String filePath = dialog.getSelectedFile().getPath();
+           
+        try {
+            // TODO add your handling code here:
+            
+            
+            String sql ="select * from Deductions where emp_id = '"+value1+"'";
+            pst=conn.prepareStatement(sql);
+            rs=pst.executeQuery(); 
+            String val = rs.getString(5);
+            String reason = rs.getString(6);
+            rs.close();
+            pst.close();
+          
+            String sq ="select * from Allowance where emp_id = '"+value1+"'";
+            pst=conn.prepareStatement(sq);
+            rs=pst.executeQuery(); 
+            
+            
+           int calcTotal = Integer.parseInt(txt_salary.getText());
+           float x = Float.valueOf(rs.getString(9));
+           int v = Integer.parseInt(val);
+           float total = calcTotal+ x -v;
+           
+           Document myDocument = new Document();
+           PdfWriter myWriter = PdfWriter.getInstance(myDocument, new FileOutputStream(filePath));
+           myDocument.open();
+           
+           myDocument.add(new Paragraph("PAY SLIP",FontFactory.getFont(FontFactory.TIMES_BOLD,20,Font.BOLD )));
+           myDocument.add(new Paragraph(new Date().toString()));
+           myDocument.add(new Paragraph("-------------------------------------------------------------------------------------------"));
+           myDocument.add((new Paragraph("EMPLOYEE DETAILS",FontFactory.getFont(FontFactory.TIMES_ROMAN,15,Font.BOLD))));
+           myDocument.add((new Paragraph("Name of Employee: " +value + " "+value0,FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN))));
+           myDocument.add((new Paragraph("Designation: "+value2,FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN))));
+           myDocument.add((new Paragraph("Department: "+value3,FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN))));
+           myDocument.add(new Paragraph("-------------------------------------------------------------------------------------------"));
+           myDocument.add(new Paragraph("SALARY",FontFactory.getFont(FontFactory.TIMES_ROMAN,15,Font.BOLD)));
+           myDocument.add(new Paragraph("Basic Salary: $"+calcTotal,FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("Overtime: "+rs.getString(2)+" Hours",FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("Medical: $" +rs.getString(3),FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("Bonus: $"+rs.getString(4),FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("Other: $"+rs.getString(5),FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("-------------------------------------------------------------------------------------------"));
+           myDocument.add(new Paragraph("DEDUCTION",FontFactory.getFont(FontFactory.TIMES_ROMAN,15,Font.BOLD)));
+           myDocument.add(new Paragraph("Deduction Details: "+reason,FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("Total Deductions : $"+val ,FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("-------------------------------------------------------------------------------------------"));
+           myDocument.add(new Paragraph("TOTAL PAYMENT",FontFactory.getFont(FontFactory.TIMES_ROMAN,15,Font.BOLD)));
+           myDocument.add(new Paragraph("Total Earnings: "+rs.getString(9),FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("Net Pay : " +total,FontFactory.getFont(FontFactory.TIMES_ROMAN,10,Font.PLAIN)));
+           myDocument.add(new Paragraph("-------------------------------------------------------------------------------------------"));
+           
+           
+           myDocument.newPage();
+           myDocument.close();  
+           JOptionPane.showMessageDialog(null,"Report was successfully generated");
+           
+     }
+        catch(Exception e){
+            JOptionPane.showMessageDialog(null,e);
+         
+         
+     }
+     finally {
+            
+            try{
+               rs.close();
+               pst.close();
+                
+            }
+            catch(Exception e){
+            JOptionPane.showMessageDialog(null,e);
+         
+            }
+     }
+   }
